@@ -360,18 +360,18 @@ func (s Service) MethodsWithOption(optionName string) []*ServiceMethod {
 
 // ServiceMethod contains details about an individual method within a service.
 type ServiceMethod struct {
-	Name              string `json:"name"`
-	Description       string `json:"description"`
-	RequestType       string `json:"requestType"`
-	RequestLongType   string `json:"requestLongType"`
-	RequestFullType   string `json:"requestFullType"`
-	RequestStreaming  bool   `json:"requestStreaming"`
-	ResponseType      string `json:"responseType"`
-	ResponseLongType  string `json:"responseLongType"`
-	ResponseFullType  string `json:"responseFullType"`
-	ResponseStreaming bool   `json:"responseStreaming"`
-
-	Options map[string]interface{} `json:"options,omitempty"`
+	Name              string                 `json:"name"`
+	Description       string                 `json:"description"`
+	RequestType       string                 `json:"requestType"`
+	RequestLongType   string                 `json:"requestLongType"`
+	RequestFullType   string                 `json:"requestFullType"`
+	RequestStreaming  bool                   `json:"requestStreaming"`
+	ResponseType      string                 `json:"responseType"`
+	ResponseLongType  string                 `json:"responseLongType"`
+	ResponseFullType  string                 `json:"responseFullType"`
+	ResponseStreaming bool                   `json:"responseStreaming"`
+	Error             string                 `json:"error"`
+	Options           map[string]interface{} `json:"options,omitempty"`
 }
 
 // Option returns the named option.
@@ -521,7 +521,7 @@ func parseService(ps *protokit.ServiceDescriptor) *Service {
 func parseServiceMethod(pm *protokit.MethodDescriptor) *ServiceMethod {
 	return &ServiceMethod{
 		Name:              pm.GetName(),
-		Description:       description(pm.GetComments().String()),
+		Description:       descriptionWithoutError(pm.GetComments().String()),
 		RequestType:       baseName(pm.GetInputType()),
 		RequestLongType:   strings.TrimPrefix(pm.GetInputType(), "."+pm.GetPackage()+"."),
 		RequestFullType:   strings.TrimPrefix(pm.GetInputType(), "."),
@@ -530,6 +530,7 @@ func parseServiceMethod(pm *protokit.MethodDescriptor) *ServiceMethod {
 		ResponseLongType:  strings.TrimPrefix(pm.GetOutputType(), "."+pm.GetPackage()+"."),
 		ResponseFullType:  strings.TrimPrefix(pm.GetOutputType(), "."),
 		ResponseStreaming: pm.GetServerStreaming(),
+		Error:             errorFromDescritpion(pm.GetComments().String()),
 		Options:           mergeOptions(extractOptions(pm.GetOptions()), extensions.Transform(pm.OptionExtensions)),
 	}
 }
@@ -572,6 +573,22 @@ func description(comment string) string {
 	}
 
 	return val
+}
+
+func descriptionWithoutError(comment string) string {
+	val := strings.TrimLeft(comment, "*/\n ")
+	r := strings.Split(val, "@error")
+	return r[0]
+}
+
+func errorFromDescritpion(comment string) string {
+	val := strings.TrimLeft(comment, "*/\n ")
+	//	index := strings.Index(val, "@error")
+	r := strings.Split(val, "@error")
+	if len(r) > 1 {
+		return r[1]
+	}
+	return ""
 }
 
 type orderedEnums []*Enum

@@ -108,6 +108,23 @@
         width: auto;
       }
 
+      /* Table of enum values. */
+      .method-table td:nth-child(1) { /* Name */
+          width: 10em;
+      }
+      .method-table td:nth-child(2) { /* Number */
+          width: 10em;
+      }
+      .method-table td:nth-child(3) { /* Description */
+          width: 10em;
+      }
+      .method-table td:nth-child(4) { /* Error */
+          width: 10em;
+      }
+      .method-table td:nth-child(5) { /* Error */
+          width: auto;
+      }
+
       /* Table of scalar value types. */
       .scalar-value-types-table tr {
         height: 3em;
@@ -344,9 +361,9 @@
       {{range .Services}}
         <h3 id="{{.FullName}}">{{.Name}}</h3>
         {{p .Description}}
-        <table class="enum-table">
+        <table class="method-table">
           <thead>
-            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td><td>Error</td></tr>
           </thead>
           <tbody>
             {{range .Methods}}
@@ -355,6 +372,7 @@
                 <td><a href="#{{.RequestFullType}}">{{.RequestLongType}}</a>{{if .RequestStreaming}} stream{{end}}</td>
                 <td><a href="#{{.ResponseFullType}}">{{.ResponseLongType}}</a>{{if .ResponseStreaming}} stream{{end}}</td>
                 <td><p>{{.Description}}</p></td>
+                <td>{{p .Error}}</td>
               </tr>
             {{end}}
           </tbody>
